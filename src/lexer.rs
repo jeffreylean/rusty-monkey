@@ -7,6 +7,7 @@ pub struct Lexer<'a> {
     ch: char,
 }
 
+// Create new lexer instance.
 pub fn new(input: &str) -> Lexer {
     let mut lex = Lexer {
         input,
@@ -19,6 +20,7 @@ pub fn new(input: &str) -> Lexer {
 }
 
 impl<'a> Lexer<'a> {
+    // Read the next character and move the pointer forward.
     fn read_char(&mut self) {
         if self.read_position < self.input.len() {
             self.ch = self
@@ -27,14 +29,18 @@ impl<'a> Lexer<'a> {
                 .nth(self.read_position)
                 .expect("Invalid input index");
         } else {
+            // EOF
             self.ch = '\x00';
         }
         self.position = self.read_position;
         self.read_position += 1;
     }
 
+    // Method to read identifier.
     fn read_identifier(&mut self) -> &str {
         let pos = self.position;
+        // Repeatedly read character by character until we
+        // reach a space.
         while self.ch.is_alphabetic() || self.ch == '_' {
             self.read_char();
         }
@@ -42,8 +48,11 @@ impl<'a> Lexer<'a> {
         &self.input[pos..self.position]
     }
 
+    // Method to read number.
     fn read_number(&mut self) -> &str {
         let pos = self.position;
+        // Repeatedly read digit by digit until we
+        // reach a non-digit, ie, space.
         while self.ch.is_ascii_digit() {
             self.read_char();
         }
@@ -51,12 +60,14 @@ impl<'a> Lexer<'a> {
         &self.input[pos..self.position]
     }
 
+    // Method to skip the space by moving the pointer forward.
     fn skip_whitespace(&mut self) {
         while self.ch.is_whitespace() {
             self.read_char()
         }
     }
 
+    // Method to tokenize the next token.
     pub fn next_token(&mut self) -> Token {
         let tok: Token;
 
